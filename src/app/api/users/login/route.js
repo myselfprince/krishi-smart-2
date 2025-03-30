@@ -8,7 +8,6 @@ connect()
 
 export async function POST(request){
     try {
-
         const reqBody = await request.json()
         const {email, password} = reqBody;
         console.log("api/login/route.js: reqBody = ",reqBody)
@@ -34,20 +33,27 @@ export async function POST(request){
         const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET, {expiresIn: "1d"})
 
         const response = NextResponse.json({
-            message:"Login Successful (api/login/route.js)",
-            success: true
+            message:"Login Successful",
+            success: true,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email
+            }
         })
 
+        // Set the token in an HTTP-only cookie
         response.cookies.set("token", token, {
             httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 24 // 1 day
         })
 
         return response;
-
-
         
     } catch (error) {
+        console.error("Login error:", error);
         return NextResponse.json({error: error.message},{status:500})
-        
     }
 }
