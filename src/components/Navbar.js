@@ -15,20 +15,13 @@ export default function Navbar() {
   // Fetch user details after component mounts
   useEffect(() => {
     const fetchUser = async () => {
-      const token = Cookies.get('token'); 
-      if (!token) {
-        setUser(null);
-        return;
-      }
-
       try {
         const response = await axios.get('/api/users/me', {
-          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true, // Ensure cookies are sent with the request
         });
         setUser(response.data.user);
       } catch (error) {
         console.error('Failed to fetch user:', error);
-        Cookies.remove('token');
         setUser(null);
       }
     };
